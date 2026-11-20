@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-20T10:32:19+00:00",
+ "generado": "2026-11-20T10:53:32+00:00",
  "modo": "live",
  "forzado": true,
  "automatico": true,
@@ -12,7 +12,7 @@
   "exposicion_max": 200.0,
   "perdida_max_operacion": 6.0,
   "perdida_max_dia": 10.0,
-  "cierre_min_antes": 15
+  "cierre_min_antes": 60
  },
  "prueba": {
   "media_neta": -0.00479664803870195,

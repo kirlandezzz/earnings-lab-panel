@@ -200,7 +200,7 @@ function render(D) {
   CUR = D; stamp();
   const p = D.prueba, s = D.resumen, L = D.limites;
   document.getElementById("banner").innerHTML =
-    `Regla: comprar a las 9:35 de Nueva York las empresas que publicaron antes de la apertura y abren más de ${pct(D.estrategia.hueco_min)} arriba; vender antes de las 15:45. ` +
+    `Regla: comprar a las 9:35 de Nueva York las empresas que publicaron antes de la apertura y abren más de ${pct(D.estrategia.hueco_min)} arriba; vender ${L.cierre_min_antes} minutos antes del cierre (${(() => { const m = 16 * 60 - L.cierre_min_antes; return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0"); })()} de Nueva York). ` +
     `Límites: ${eur(L.exposicion_max)} de exposición, ${eur(L.perdida_max_operacion)} por operación, ${eur(L.perdida_max_dia)} al día. ` +
     (p.media_neta > 0 ? "" : `<strong class="warn">La prueba con datos pasados no muestra ventaja (${pct(p.media_neta, true)} por operación tras costes)` +
       (D.forzado ? ": el dinero real está activado por decisión manual, sin pasar la comprobación.</strong>" : ": este modo sirve para validar la ejecución, no para ganar.</strong>"));
