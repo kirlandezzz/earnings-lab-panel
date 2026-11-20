@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel de resultados</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f6f4; --surface: #fcfcfb; --border: #e3e2de;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7974;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  --good: #0a7d32; --bad: #c4312f; --warn: #a86400;
+  --grid: #ecebe7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111110; --surface: #1a1a19; --border: #2e2e2c;
+    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --good: #3fbf6a; --bad: #ef6b69; --warn: #e0a33a;
+    --grid: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111110; --surface: #1a1a19; --border: #2e2e2c;
+  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+  --good: #3fbf6a; --bad: #ef6b69; --warn: #e0a33a;
+  --grid: #262624;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+.meta { color: var(--text-2); font-size: 13px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border); color: var(--text-2); }
+.banner { overflow-wrap: anywhere; margin: 16px 0 0; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-2); font-size: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.tile .k { color: var(--text-2); font-size: 12px; }
+.tile .v { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tile .s { color: var(--muted); font-size: 12px; }
+section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-2); margin-bottom: 8px; }
+.legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.chart { position: relative; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  display: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip i { display: inline-block; width: 10px; height: 2px; vertical-align: middle; margin-right: 6px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--text-2); font-weight: 600; }
+td.n, th.n { text-align: right; }
+.pos { color: var(--good); } .neg { color: var(--bad); } .warn { color: var(--warn); }
+.empty { color: var(--muted); font-size: 14px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+section, .tile { min-width: 0; }
+@media (min-width: 860px) { .grid2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .grid2 section { margin-top: 0; } }
+.toggle { background: none; border: 1px solid var(--border); color: var(--text-2); border-radius: 8px; padding: 2px 8px; cursor: pointer; font: inherit; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Panel de resultados <span id="mode" class="badge"></span></h1>
+    <div class="meta"><span id="gen"></span> · <button class="toggle" id="theme">Tema</button></div>
+  </header>
+  <div class="banner" id="banner"></div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section>
+    <h2>Resultado acumulado frente a la prueba y al S&amp;P 500</h2>
+    <div class="legend">
+      <span><i style="background:var(--s1)"></i>Sistema (con costes reales)</span>
+      <span><i style="background:var(--s2)"></i>Esperado según la prueba</span>
+      <span><i style="background:var(--s3)"></i>S&amp;P 500, mismos euros y días</span>
+    </div>
+    <div class="chart" id="chart"><p class="empty">Aún no hay días cerrados.</p></div>
+  </section>
+
+  <div class="grid2" style="margin-top:16px">
+    <section>
+      <h2>Señales del día <span class="meta" id="sigday"></span></h2>
+      <div class="scroll" id="signals"></div>
+    </section>
+    <section>
+      <h2>Posiciones abiertas</h2>
+      <div class="scroll" id="positions"></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Registro de operaciones</h2>
+    <div class="scroll" id="trades"></div>
+  </section>
+
+  <section>
+    <h2>Cuadre con el extracto de Trading 212</h2>
+    <div class="scroll" id="recon"></div>
+  </section>
+</main>
+<div class="tip" id="tip"></div>
+<script>
+(function () {
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  document.getElementById("theme").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  };
+})();
+
+const eur = (v, sign) => v == null ? "—" : (sign && v > 0 ? "+" : "") + v.toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €";
+const pct = (v, sign) => v == null ? "—" : (sign && v > 0 ? "+" : "") + (v * 100).toLocaleString("es-ES", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " %";
+const cls = v => v == null ? "" : v > 0 ? "pos" : v < 0 ? "neg" : "";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+function table(rows, cols) {
+  if (!rows.length) return '<p class="empty">Nada que mostrar.</p>';
+  return "<table><thead><tr>" + cols.map(c => `<th class="${c.n ? "n" : ""}">${c.h}</th>`).join("") +
+    "</tr></thead><tbody>" + rows.map(r => "<tr>" + cols.map(c => {
+      const v = c.f ? c.f(r) : esc(r[c.k]);
+      return `<td class="${c.n ? "n " : ""}${c.c ? c.c(r) : ""}">${v}</td>`;
+    }).join("") + "</tr>").join("") + "</tbody></table>";
+}
+
+function chart(el, data) {
+  if (!data.length) return;
+  const W = Math.max(320, Math.round(el.clientWidth)), H = W < 600 ? 240 : 300, m = {l: 64, r: 16, t: 12, b: 28};
+  const keys = [["real", "--s1", "Sistema"], ["prueba", "--s2", "Prueba"], ["sp500", "--s3", "S&P 500"]];
+  const vals = data.flatMap(d => keys.map(k => d[k[0]])).concat([0]);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi - lo < 1) { hi += 0.5; lo -= 0.5; }
+  const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => s >= raw);
+  lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+  const x = i => m.l + (data.length === 1 ? (W - m.l - m.r) / 2 : i * (W - m.l - m.r) / (data.length - 1));
+  const y = v => m.t + (hi - v) * (H - m.t - m.b) / (hi - lo);
+  let g = "";
+  for (let v = lo; v <= hi + step / 2; v += step) {
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" />` +
+      `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${eur(v)}</text>`;
+  }
+  g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-width="1" />`;
+  const ticks = Math.min(W < 600 ? 3 : 6, data.length);
+  for (let j = 0; j < ticks; j++) {
+    const i = Math.round(j * (data.length - 1) / Math.max(1, ticks - 1));
+    g += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="12" fill="var(--muted)">${data[i].date.slice(5)}</text>`;
+  }
+  const lines = keys.map(([k, c]) => {
+    const d = data.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
+    const last = data[data.length - 1];
+    return `<path d="${d}" fill="none" stroke="var(${c})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
+      `<circle cx="${x(data.length - 1)}" cy="${y(last[k])}" r="4" fill="var(${c})" stroke="var(--surface)" stroke-width="2"/>`;
+  }).join("");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resultado acumulado">${g}${lines}
+    <line id="xh" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="3 3" visibility="hidden"/>
+    <rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent" id="hit"/></svg>`;
+  const svg = el.querySelector("svg"), xh = svg.querySelector("#xh"), tip = document.getElementById("tip");
+  svg.querySelector("#hit").addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(data.length - 1, Math.round((px - m.l) / ((W - m.l - m.r) / Math.max(1, data.length - 1)))));
+    xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible");
+    const d = data[i];
+    tip.innerHTML = `<b>${d.date}</b>` + keys.map(([k, c, n]) => `<div><i style="background:var(${c})"></i>${n}: ${eur(d[k], true)}</div>`).join("");
+    tip.style.display = "block";
+    const tx = Math.min(ev.pageX + 14, window.scrollX + document.documentElement.clientWidth - tip.offsetWidth - 8);
+    tip.style.left = tx + "px"; tip.style.top = (ev.pageY + 14) + "px";
+  });
+  svg.querySelector("#hit").addEventListener("pointerleave", () => { tip.style.display = "none"; xh.setAttribute("visibility", "hidden"); });
+}
+
+fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
+  document.getElementById("mode").textContent = D.modo === "live" ? "Dinero real" : "Demo";
+  document.getElementById("gen").textContent = "Actualizado " + new Date(D.generado).toLocaleString("es-ES");
+  const p = D.prueba, s = D.resumen, L = D.limites;
+  document.getElementById("banner").innerHTML =
+    `Regla: comprar a las 9:35 de Nueva York las empresas que publicaron antes de la apertura y abren más de ${pct(D.estrategia.hueco_min)} arriba; vender antes de las 15:45. ` +
+    `Límites: ${eur(L.exposicion_max)} de exposición, ${eur(L.perdida_max_operacion)} por operación, ${eur(L.perdida_max_dia)} al día. ` +
+    (p.media_neta > 0 ? "" : `<strong class="warn">La prueba con datos pasados no muestra ventaja (${pct(p.media_neta, true)} por operación tras costes): este modo sirve para validar la ejecución, no para ganar.</strong>`);
+  const tiles = [
+    ["Operaciones", s.operaciones, `prueba: ${p.n.toLocaleString("es-ES")}`],
+    ["Acierto", s.acierto == null ? "—" : pct(s.acierto), `prueba: ${pct(p.acierto)}`],
+    ["Media por operación", pct(s.media_pct, true), `prueba: ${pct(p.media_neta, true)}`, cls(s.media_pct)],
+    ["Resultado total", eur(s.total_eur, true), s.media_eur == null ? "" : `${eur(s.media_eur, true)} por operación`, cls(s.total_eur)],
+    ["Peor racha", s.peor_racha_dias ? `${s.peor_racha_dias} días` : "—", s.peor_racha_dias ? eur(s.peor_racha_eur) : ""],
+  ];
+  document.getElementById("tiles").innerHTML = tiles.map(([k, v, sub, c]) =>
+    `<div class="tile"><div class="k">${k}</div><div class="v ${c || ""}">${v}</div><div class="s">${sub}</div></div>`).join("");
+  const ch = document.getElementById("chart");
+  chart(ch, D.curva);
+  let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => chart(ch, D.curva), 150); });
+  document.getElementById("sigday").textContent = D.senales_dia || "";
+  document.getElementById("signals").innerHTML = table(D.senales, [
+    {h: "Empresa", k: "ticker"}, {h: "Hora", k: "time_et"}, {h: "Tipo", k: "kind"},
+    {h: "Hueco", n: 1, f: r => pct(r.gap, true), c: r => cls(r.gap)}, {h: "Decisión", k: "decision"}, {h: "Motivo", k: "reason"}]);
+  document.getElementById("positions").innerHTML = table(D.posiciones, [
+    {h: "Empresa", k: "ticker"}, {h: "Entrada", f: r => esc((r.entry_time || "").slice(11, 16))},
+    {h: "Acciones", n: 1, f: r => r.qty?.toLocaleString("es-ES")}, {h: "Precio", n: 1, f: r => r.entry_price?.toFixed(2) + " $"},
+    {h: "Stop", n: 1, f: r => r.stop_price ? r.stop_price.toFixed(2) + " $" : "—"}, {h: "Invertido", n: 1, f: r => eur(r.entry_eur)}]);
+  document.getElementById("trades").innerHTML = table(D.operaciones, [
+    {h: "Día", k: "date"}, {h: "Empresa", k: "ticker"}, {h: "Hueco", n: 1, f: r => pct(r.gap, true)},
+    {h: "Entrada", n: 1, f: r => r.entry_price?.toFixed(2) + " $"}, {h: "Salida", n: 1, f: r => r.exit_price ? r.exit_price.toFixed(2) + " $" : "—"},
+    {h: "Invertido", n: 1, f: r => eur(r.entry_eur)}, {h: "Resultado", n: 1, f: r => eur(r.pnl_eur, true), c: r => cls(r.pnl_eur)},
+    {h: "Motivo salida", k: "exit_reason"}, {h: "Estado", k: "status"}]);
+  const st = {OK: ["✓ Cuadra", "pos"], DIFERENCIA: ["✕ Diferencia", "neg"], AVISO: ["! Aviso", "warn"], SIN_OPERACIONES: ["Sin operaciones", ""]};
+  document.getElementById("recon").innerHTML = table(D.cuadre, [
+    {h: "Día", k: "date"}, {h: "Sistema", n: 1, f: r => eur(r.ledger_eur, true)}, {h: "Extracto", n: 1, f: r => eur(r.statement_eur, true)},
+    {h: "Diferencia", n: 1, f: r => eur(r.diff_eur, true), c: r => Math.abs(r.diff_eur) > 0.02 ? "neg" : ""},
+    {h: "Estado", f: r => (st[r.status] || [esc(r.status)])[0], c: r => (st[r.status] || ["", ""])[1]}, {h: "Detalle", k: "detail"}]);
+}).catch(e => {
+  document.getElementById("banner").textContent = "No se pudo cargar data.json: " + e;
+});
+</script>
+</body>
+</html>

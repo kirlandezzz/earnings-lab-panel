@@ -1,0 +1,36 @@
+{
+ "generado": "2026-11-20T10:06:21+00:00",
+ "modo": "demo",
+ "estrategia": {
+  "nombre": "BMO_cont",
+  "hueco_min": 0.02,
+  "max_posiciones": 4
+ },
+ "limites": {
+  "exposicion_max": 200.0,
+  "perdida_max_operacion": 6.0,
+  "perdida_max_dia": 10.0,
+  "cierre_min_antes": 15
+ },
+ "prueba": {
+  "media_neta": -0.00479664803870195,
+  "n": 901,
+  "acierto": 0.46059933407325193,
+  "coste_ida_vuelta": 0.0045000000000000005
+ },
+ "resumen": {
+  "operaciones": 0,
+  "acierto": null,
+  "media_eur": null,
+  "media_pct": null,
+  "total_eur": 0,
+  "peor_racha_dias": 0,
+  "peor_racha_eur": 0.0
+ },
+ "senales_dia": null,
+ "senales": [],
+ "posiciones": [],
+ "operaciones": [],
+ "curva": [],
+ "cuadre": []
+}
