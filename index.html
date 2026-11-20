@@ -186,13 +186,14 @@ function chart(el, data) {
 }
 
 fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
-  document.getElementById("mode").textContent = D.modo === "live" ? "Dinero real" : "Demo";
+  document.getElementById("mode").textContent = D.modo === "live" ? (D.forzado ? "Dinero real · forzado" : "Dinero real") : "Demo";
   document.getElementById("gen").textContent = "Actualizado " + new Date(D.generado).toLocaleString("es-ES");
   const p = D.prueba, s = D.resumen, L = D.limites;
   document.getElementById("banner").innerHTML =
     `Regla: comprar a las 9:35 de Nueva York las empresas que publicaron antes de la apertura y abren más de ${pct(D.estrategia.hueco_min)} arriba; vender antes de las 15:45. ` +
     `Límites: ${eur(L.exposicion_max)} de exposición, ${eur(L.perdida_max_operacion)} por operación, ${eur(L.perdida_max_dia)} al día. ` +
-    (p.media_neta > 0 ? "" : `<strong class="warn">La prueba con datos pasados no muestra ventaja (${pct(p.media_neta, true)} por operación tras costes): este modo sirve para validar la ejecución, no para ganar.</strong>`);
+    (p.media_neta > 0 ? "" : `<strong class="warn">La prueba con datos pasados no muestra ventaja (${pct(p.media_neta, true)} por operación tras costes)` +
+      (D.forzado ? ": el dinero real está activado por decisión manual, sin pasar la comprobación.</strong>" : ": este modo sirve para validar la ejecución, no para ganar.</strong>"));
   const tiles = [
     ["Operaciones", s.operaciones, `prueba: ${p.n.toLocaleString("es-ES")}`],
     ["Acierto", s.acierto == null ? "—" : pct(s.acierto), `prueba: ${pct(p.acierto)}`],
