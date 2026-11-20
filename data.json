@@ -1,7 +1,7 @@
 {
- "generado": "2026-11-20T10:22:58+00:00",
- "modo": "demo",
- "forzado": false,
+ "generado": "2026-11-20T10:26:30+00:00",
+ "modo": "live",
+ "forzado": true,
  "estrategia": {
   "nombre": "BMO_cont",
   "hueco_min": 0.02,
