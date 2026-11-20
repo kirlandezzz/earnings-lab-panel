@@ -186,7 +186,7 @@ function chart(el, data) {
 }
 
 fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
-  document.getElementById("mode").textContent = D.modo === "live" ? (D.forzado ? "Dinero real · forzado" : "Dinero real") : "Demo";
+  document.getElementById("mode").textContent = D.modo === "live" ? ("Dinero real" + (D.forzado ? " · forzado" : "") + (D.automatico ? " · automático" : "")) : "Demo";
   document.getElementById("gen").textContent = "Actualizado " + new Date(D.generado).toLocaleString("es-ES");
   const p = D.prueba, s = D.resumen, L = D.limites;
   document.getElementById("banner").innerHTML =
