@@ -185,9 +185,19 @@ function chart(el, data) {
   svg.querySelector("#hit").addEventListener("pointerleave", () => { tip.style.display = "none"; xh.setAttribute("visibility", "hidden"); });
 }
 
-fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
+let CUR = null, rz;
+addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => CUR && chart(document.getElementById("chart"), CUR.curva), 150); });
+
+function ago(iso) {
+  const min = Math.round((Date.now() - new Date(iso)) / 60000);
+  const when = new Date(iso).toLocaleString("es-ES", {dateStyle: "short", timeStyle: "short"});
+  return min < 1 ? "hace menos de un minuto" : min < 60 ? `hace ${min} min (${when})` : when;
+}
+function stamp() { if (CUR) document.getElementById("gen").textContent = "Datos " + ago(CUR.generado) + " · se recarga solo"; }
+
+function render(D) {
   document.getElementById("mode").textContent = D.modo === "live" ? ("Dinero real" + (D.forzado ? " · forzado" : "") + (D.automatico ? " · automático" : "")) : "Demo";
-  document.getElementById("gen").textContent = "Actualizado " + new Date(D.generado).toLocaleString("es-ES");
+  CUR = D; stamp();
   const p = D.prueba, s = D.resumen, L = D.limites;
   document.getElementById("banner").innerHTML =
     `Regla: comprar a las 9:35 de Nueva York las empresas que publicaron antes de la apertura y abren más de ${pct(D.estrategia.hueco_min)} arriba; vender antes de las 15:45. ` +
@@ -203,9 +213,7 @@ fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
   ];
   document.getElementById("tiles").innerHTML = tiles.map(([k, v, sub, c]) =>
     `<div class="tile"><div class="k">${k}</div><div class="v ${c || ""}">${v}</div><div class="s">${sub}</div></div>`).join("");
-  const ch = document.getElementById("chart");
-  chart(ch, D.curva);
-  let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => chart(ch, D.curva), 150); });
+  chart(document.getElementById("chart"), D.curva);
   document.getElementById("sigday").textContent = D.senales_dia || "";
   document.getElementById("signals").innerHTML = table(D.senales, [
     {h: "Empresa", k: "ticker"}, {h: "Hora", k: "time_et"}, {h: "Tipo", k: "kind"},
@@ -224,9 +232,20 @@ fetch("data.json", {cache: "no-store"}).then(r => r.json()).then(D => {
     {h: "Día", k: "date"}, {h: "Sistema", n: 1, f: r => eur(r.ledger_eur, true)}, {h: "Extracto", n: 1, f: r => eur(r.statement_eur, true)},
     {h: "Diferencia", n: 1, f: r => eur(r.diff_eur, true), c: r => Math.abs(r.diff_eur) > 0.02 ? "neg" : ""},
     {h: "Estado", f: r => (st[r.status] || [esc(r.status)])[0], c: r => (st[r.status] || ["", ""])[1]}, {h: "Detalle", k: "detail"}]);
-}).catch(e => {
-  document.getElementById("banner").textContent = "No se pudo cargar data.json: " + e;
-});
+}
+
+// Recarga los datos cada minuto, sin recargar la página (el motor publica cada pocos minutos en horario de mercado)
+function load() {
+  return fetch("data.json?t=" + Date.now(), {cache: "no-store"}).then(r => r.json()).then(D => {
+    if (!CUR || D.generado !== CUR.generado) render(D);
+  }).catch(e => {
+    if (!CUR) document.getElementById("banner").textContent = "No se pudo cargar data.json: " + e;
+  });
+}
+load();
+setInterval(load, 60000);
+setInterval(stamp, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
 </script>
 </body>
 </html>
