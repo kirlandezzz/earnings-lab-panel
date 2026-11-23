@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-23T14:30:42+00:00",
+ "generado": "2026-11-23T14:35:53+00:00",
  "modo": "live",
  "forzado": true,
  "automatico": true,
@@ -29,8 +29,17 @@
   "peor_racha_dias": 0,
   "peor_racha_eur": 0.0
  },
- "senales_dia": null,
- "senales": [],
+ "senales_dia": "2026-11-23",
+ "senales": [
+  {
+   "ticker": "CRWD",
+   "kind": "BMO",
+   "time_et": "06:04",
+   "gap": -0.0008076159681744688,
+   "decision": "NO",
+   "reason": "hueco -0.1% ≤ +2%"
+  }
+ ],
  "posiciones": [],
  "operaciones": [],
  "curva": [],
