@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-23T23:34:22+00:00",
+ "generado": "2026-11-24T15:35:07+00:00",
  "modo": "live",
  "forzado": true,
  "automatico": true,
@@ -29,19 +29,85 @@
   "peor_racha_dias": 0,
   "peor_racha_eur": 0.0
  },
- "senales_dia": "2026-11-23",
+ "senales_dia": "2026-11-24",
  "senales": [
   {
-   "ticker": "CRWD",
+   "ticker": "DLTR",
    "kind": "BMO",
-   "time_et": "06:04",
-   "gap": -0.0008076159681744688,
+   "time_et": "06:30",
+   "gap": 0.075821071095453,
+   "decision": "COMPRADA",
+   "reason": ""
+  },
+  {
+   "ticker": "SJM",
+   "kind": "BMO",
+   "time_et": "07:04",
+   "gap": -0.01197467659733209,
    "decision": "NO",
-   "reason": "hueco -0.1% ≤ +2%"
+   "reason": "hueco -1.2% ≤ +2%"
+  },
+  {
+   "ticker": "MDT",
+   "kind": "BMO",
+   "time_et": "06:32",
+   "gap": -0.034113431913140535,
+   "decision": "NO",
+   "reason": "hueco -3.4% ≤ +2%"
+  },
+  {
+   "ticker": "ADI",
+   "kind": "BMO",
+   "time_et": "07:03",
+   "gap": -0.12814651391510057,
+   "decision": "NO",
+   "reason": "hueco -12.8% ≤ +2%"
+  },
+  {
+   "ticker": "BBY",
+   "kind": "BMO",
+   "time_et": "07:00",
+   "gap": null,
+   "decision": "NO",
+   "reason": "sin precio"
   }
  ],
- "posiciones": [],
- "operaciones": [],
+ "posiciones": [
+  {
+   "date": "2026-11-24",
+   "ticker": "DLTR",
+   "gap": 0.075821071095453,
+   "entry_time": "2026-11-24T09:38:51-05:00",
+   "entry_price": 154.26,
+   "qty": 1.421,
+   "entry_eur": 200.0,
+   "stop_price": 150.33,
+   "exit_time": null,
+   "exit_price": null,
+   "exit_eur": null,
+   "exit_reason": null,
+   "pnl_eur": null,
+   "status": "OPEN"
+  }
+ ],
+ "operaciones": [
+  {
+   "date": "2026-11-24",
+   "ticker": "DLTR",
+   "gap": 0.075821071095453,
+   "entry_time": "2026-11-24T09:38:51-05:00",
+   "entry_price": 154.26,
+   "qty": 1.421,
+   "entry_eur": 200.0,
+   "stop_price": 150.33,
+   "exit_time": null,
+   "exit_price": null,
+   "exit_eur": null,
+   "exit_reason": null,
+   "pnl_eur": null,
+   "status": "OPEN"
+  }
+ ],
  "curva": [
   {
    "date": "2026-11-23",
